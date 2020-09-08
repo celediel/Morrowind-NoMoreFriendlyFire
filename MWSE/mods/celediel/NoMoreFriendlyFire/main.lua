@@ -2,9 +2,7 @@ local common = require("celediel.NoMoreFriendlyFire.common")
 local config = require("celediel.NoMoreFriendlyFire.config").getConfig()
 
 local mag
-pcall(function()
-    mag = require("celediel.MoreAttentiveGuards.interop")
-end)
+pcall(function() mag = require("celediel.MoreAttentiveGuards.interop") end)
 
 -- todo: make this not hardcoded somehow
 local followMatches = {"follow", "together", "travel", "wait", "stay"}
@@ -15,19 +13,52 @@ local function log(...) if config.debug then mwse.log("[%s] %s", common.modName,
 -- keep track of followers
 local followers = {}
 
+local function friendCheck(friend)
+    if not friend then return false end
+
+    -- first try baseObject, then try object.baseObject, finally settle on object
+    local obj = friend.baseObject and friend.baseObject or
+                    (friend.object.baseObject and friend.object.baseObject or friend.object)
+
+    -- ignored More Attentive Guards followers
+    local magGuard = mag and mag.getGuardFollower() or nil
+    if friend == magGuard then
+        log("Ignored MAG Guard %s", obj.name)
+        return false
+    end
+
+    -- ignored id
+    if config.ignored[obj.id:lower()] then
+        log("Ignored id %s", obj.id)
+        return false
+    end
+
+    -- ignored mod
+    if config.ignored[obj.sourceMod:lower()] then
+        log("Ignored mod %s", obj.sourceMod)
+        return false
+    end
+
+    -- otherwise,
+    return true
+end
+
+local function followerDamageCheck(attacker, attackee)
+    return followers[attacker.object.id] ~= nil and followers[attackee.object.id] ~= nil and attacker ~= attackee
+end
+
 local function buildFollowerList()
     local friends = {}
 
     local msg = ""
-    local magGuard = mag and mag.getGuardFollower() or nil
 
     for friend in tes3.iterate(tes3.mobilePlayer.friendlyActors) do
-        if friend ~= magGuard then
+        if friendCheck(friend) then
             friends[friend.object.id] = true
             msg = msg .. friend.object.name .. " "
         end
     end
-    log("Friends: %s", msg)
+    if msg ~= "" then log("Friends: %s", msg) end
     return friends
 end
 
@@ -37,7 +68,7 @@ local eventFunctions = {}
 eventFunctions.onDamage = function(e)
     if not e.attackerReference then return end
 
-    if followers[e.attackerReference.object.id] and followers[e.reference.object.id] then
+    if followerDamageCheck(e.attackerReference, e.reference) then
         if config.enable then
             log("%s hit %s for %s friendly damage, nullifying", e.attackerReference.object.name,
                 e.reference.object.name, e.damage)
@@ -70,9 +101,7 @@ eventFunctions.onInfoResponse = function(e)
                     type = timer.simulate,
                     duration = 0.5,
                     iteration = 1,
-                    callback = function()
-                        followers = buildFollowerList()
-                    end
+                    callback = function() followers = buildFollowerList() end
                 })
             end
         end

@@ -21,4 +21,16 @@ category:createYesNoButton({
     variable = mwse.mcm.createTableVariable({id = "debug", table = config})
 })
 
+template:createExclusionsPage({
+    label = "Ignored things",
+    description = "NPCs, creatures, and anything from plugins on this list won't be counted as a follower.",
+    showAllBlocked = false,
+    filters = {
+        {label = "Plugins", type = "Plugin"},
+        {label = "NPCs", type = "Object", objectType = tes3.objectType.npc},
+        {label = "Creatures", type = "Object", objectType = tes3.objectType.creature}
+    },
+    variable = mwse.mcm.createTableVariable({id = "ignored", table = config})
+})
+
 return template

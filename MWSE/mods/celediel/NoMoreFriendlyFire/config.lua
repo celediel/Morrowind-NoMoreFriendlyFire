@@ -1,7 +1,7 @@
 local common = require("celediel.NoMoreFriendlyFire.common")
 
 local currentConfig
-local defaultConfig = {enable = true, debug = false}
+local defaultConfig = {enable = true, debug = false, ignored = {}}
 local this = {}
 
 this.getConfig = function()
