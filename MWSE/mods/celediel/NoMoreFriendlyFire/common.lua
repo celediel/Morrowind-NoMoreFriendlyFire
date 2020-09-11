@@ -6,6 +6,6 @@ this.modConfig = this.modName:gsub("%s", "")
 this.modInfo = "Stop friendly fire. Player companions can't damage the player, the player " ..
                "can't damage companions, and companions can't damage each other. That's it."
 this.author = "Celediel"
-this.version = "1.3.0"
+this.version = "1.4.0"
 
 return this
