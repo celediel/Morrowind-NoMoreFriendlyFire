@@ -12,6 +12,8 @@ The script keeps a cached list of followers that is refreshed at the following i
 
 If you have [More Attentive Guards](https://www.nexusmods.com/morrowind/mods/48622) version 1.1.4 or greater installed, then following guards won't be counted as friendly by this mod.
 
+As of version 1.4, there is an option to also stop any combat that would be started between followers.
+
 ## Known Issues ##
 Doesn't stop experience gain, just zeros out the damage that would have been done. I'm not really sure this one _can_ be fixed.
 
