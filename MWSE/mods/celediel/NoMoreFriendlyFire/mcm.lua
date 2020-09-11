@@ -12,8 +12,13 @@ local page = template:createSideBarPage({
 local category = page:createCategory(common.modName)
 
 category:createYesNoButton({
-    label = "Stop friendly fire",
-    variable = mwse.mcm.createTableVariable({id = "enable", table = config})
+    label = "Stop friendly damage",
+    variable = mwse.mcm.createTableVariable({id = "stopDamage", table = config})
+})
+
+category:createYesNoButton({
+    label = "Stop friendly combat from occurring",
+    variable = mwse.mcm.createTableVariable({id = "stopCombat", table = config})
 })
 
 category:createYesNoButton({

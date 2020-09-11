@@ -13,38 +13,23 @@ local function log(...) if config.debug then mwse.log("[%s] %s", common.modName,
 -- keep track of followers
 local followers = {}
 
-local function friendCheck(friend)
+-- {{{ internal functions
+local function notActuallyFriend(friend)
     if not friend then return false end
-
-    -- first try baseObject, then try object.baseObject, finally settle on object
     local obj = friend.baseObject and friend.baseObject or
                     (friend.object.baseObject and friend.object.baseObject or friend.object)
-
-    -- ignored More Attentive Guards followers
     local magGuard = mag and mag.getGuardFollower() or nil
-    if friend == magGuard then
-        log("Ignored MAG Guard %s", obj.name)
-        return false
-    end
+    local ignoredId = config.ignored[obj.id:lower()]
+    local ignoredMod = config.ignored[obj.sourceMod:lower()]
 
-    -- ignored id
-    if config.ignored[obj.id:lower()] then
-        log("Ignored id %s", obj.id)
-        return false
-    end
+    log("Friend %s: Is MAG Guard:%s, Ignored id:%s, Ignored mod:%s", obj.name, friend == magGuard,
+        ignoredId or "false", ignoredMod or "false")
 
-    -- ignored mod
-    if config.ignored[obj.sourceMod:lower()] then
-        log("Ignored mod %s", obj.sourceMod)
-        return false
-    end
-
-    -- otherwise,
-    return true
+    return friend == magGuard or ignoredId or ignoredMod
 end
 
-local function followerDamageCheck(attacker, attackee)
-    return followers[attacker.object.id] ~= nil and followers[attackee.object.id] ~= nil and attacker ~= attackee
+local function followerCheck(attacker, target)
+    return followers[attacker.object.id] ~= nil and followers[target.object.id] ~= nil and attacker ~= target
 end
 
 local function buildFollowerList()
@@ -53,7 +38,8 @@ local function buildFollowerList()
     local msg = ""
 
     for friend in tes3.iterate(tes3.mobilePlayer.friendlyActors) do
-        if friendCheck(friend) then
+        -- nice double negative
+        if not notActuallyFriend(friend) then
             friends[friend.object.id] = true
             msg = msg .. friend.object.name .. " "
         end
@@ -61,15 +47,17 @@ local function buildFollowerList()
     if msg ~= "" then log("Friends: %s", msg) end
     return friends
 end
+-- }}}
 
--- Event functions
+-- {{{ Event functions
 local eventFunctions = {}
 
+-- {{{ events to actually do the stuff
 eventFunctions.onDamage = function(e)
     if not e.attackerReference then return end
 
-    if followerDamageCheck(e.attackerReference, e.reference) then
-        if config.enable then
+    if followerCheck(e.attackerReference, e.reference) then
+        if config.stopDamage then
             log("%s hit %s for %s friendly damage, nullifying", e.attackerReference.object.name,
                 e.reference.object.name, e.damage)
             e.damage = 0
@@ -77,12 +65,22 @@ eventFunctions.onDamage = function(e)
         else
             log("%s hit %s for %s friendly damage", e.attackerReference.object.name, e.reference.object.name, e.damage)
         end
-    -- uncomment this to see all damage done by everyone to everyone else
-    -- else
-    --     log("%s hit %s for %s damage", e.attackerReference.object.name, e.reference.object.name, e.damage)
+        -- uncomment this to see all damage done by everyone to everyone else
+        -- else
+        --     log("%s hit %s for %s damage", e.attackerReference.object.name, e.reference.object.name, e.damage)
     end
 end
 
+-- prevent combat from even happening between friendly actors
+eventFunctions.onCombatStart = function(e)
+    if config.stopCombat and followerCheck(e.actor, e.target) then
+        log("Friendly combat attempted, putting a stop to it!")
+        return false
+    end
+end
+-- }}}
+
+-- {{{ events to rebuild follower list
 eventFunctions.onCellChanged = function(e) followers = buildFollowerList() end
 
 -- hopefully, when telling a follower to follow or wait, rebuild followers list
@@ -122,6 +120,8 @@ eventFunctions.onSpellCasted = function(e)
         })
     end
 end
+-- }}}
+-- }}}
 
 -- Register events
 local function onInitialized()
