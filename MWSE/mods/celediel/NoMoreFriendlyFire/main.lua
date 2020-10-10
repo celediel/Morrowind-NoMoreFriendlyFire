@@ -92,9 +92,9 @@ eventFunctions.onInfoResponse = function(e)
 
     for _, item in pairs(followMatches) do
         if command:match(item) or dialogue:match(item) then
-            log("Found %s in dialogue, rebuilding followers", item)
             -- wait until game time restarts, and don't set multiple timers
             if not postDialogueTimer or postDialogueTimer.state ~= timer.active then
+                log("Found %s in dialogue, rebuilding followers", item)
                 postDialogueTimer = timer.start({
                     type = timer.simulate,
                     duration = 0.5,
