@@ -8,4 +8,7 @@ this.modInfo = "Stop friendly fire. Player companions can't damage the player, t
 this.author = "Celediel"
 this.version = "1.4.0"
 
+-- debug
+this.logLevels = {no = 0, small = 1, big = 2}
+
 return this

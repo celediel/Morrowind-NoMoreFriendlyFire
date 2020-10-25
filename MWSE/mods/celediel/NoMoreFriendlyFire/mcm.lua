@@ -21,9 +21,14 @@ category:createYesNoButton({
     variable = mwse.mcm.createTableVariable({id = "stopCombat", table = config})
 })
 
-category:createYesNoButton({
-    label = "Debug logging",
-    variable = mwse.mcm.createTableVariable({id = "debug", table = config})
+category:createDropdown({
+    label = "Debug log level",
+    options = {
+        {label = "No", value = common.logLevels.no},
+        {label = "Small", value = common.logLevels.small},
+        {label = "Big", value = common.logLevels.big}
+    },
+    variable = mwse.mcm.createTableVariable({id = "debugLevel", table = config})
 })
 
 template:createExclusionsPage({
