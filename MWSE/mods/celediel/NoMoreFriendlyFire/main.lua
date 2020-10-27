@@ -54,7 +54,7 @@ local function isHarmfulSpell(source)
     -- look for harmful effects in the source spell
     for i = 1, 8 do
         local effect = source.effects[i]
-        if effect.object then
+        if effect and effect.object then
             -- todo: get name of spell effect instead of id
             log(common.logLevels.big, "effect #%s id:%s: harmful:%s", i, effect.object.id, effect.object.isHarmful)
             if effect.object.isHarmful then return true end -- found one!
@@ -73,8 +73,8 @@ eventFunctions.onDamage = function(e)
 
     if followerCheck(e.attackerReference, e.reference) then
         if config.stopDamage then
-            log(common.logLevels.small, "%s hit %s for %s friendly damage, nullifying", e.attackerReference.object.name,
-                e.reference.object.name, e.damage)
+            log(common.logLevels.small, "%s hit %s for %s friendly damage, nullifying",
+                e.attackerReference.object.name, e.reference.object.name, e.damage)
             e.damage = 0
             return false -- I don't know if this makes a difference or not
         else
@@ -82,8 +82,8 @@ eventFunctions.onDamage = function(e)
                 e.reference.object.name, e.damage)
         end
     else
-        log(common.logLevels.big, "%s hit %s for %s damage", e.attackerReference.object.name, e.reference.object.name,
-            e.damage)
+        log(common.logLevels.big, "%s hit %s for %s damage", e.attackerReference.object.name,
+            e.reference.object.name, e.damage)
     end
 end
 
