@@ -17,7 +17,7 @@ local followers = {}
 
 -- {{{ internal functions
 local function notActuallyFriend(friend)
-    if not friend then return false end
+    if not friend then return true end
     local obj = friend.baseObject and friend.baseObject or
                     (friend.object.baseObject and friend.object.baseObject or friend.object)
     local magGuard = mag and mag.getGuardFollower() or nil
