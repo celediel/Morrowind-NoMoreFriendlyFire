@@ -24,7 +24,7 @@ local function notActuallyFriend(friend)
     local ignoredId = config.ignored[obj.id:lower()]
     local ignoredMod = config.ignored[obj.sourceMod:lower()]
 
-    log(common.logLevels.small, "Friend %s: Is MAG Guard:%s, Ignored id:%s, Ignored mod:%s", obj.name,
+    log(common.logLevels.big, "Friend %s: Is MAG Guard:%s, Ignored id:%s, Ignored mod:%s", obj.name,
         friend == magGuard, ignoredId or "false", ignoredMod or "false")
 
     return friend == magGuard or ignoredId or ignoredMod
