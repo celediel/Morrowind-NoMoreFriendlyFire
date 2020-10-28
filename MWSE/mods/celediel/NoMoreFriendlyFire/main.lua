@@ -15,6 +15,8 @@ end
 -- keep track of followers
 local followers = {}
 
+local spellEffects = {}
+
 -- {{{ internal functions
 local function notActuallyFriend(friend)
     if not friend then return true end
@@ -52,15 +54,15 @@ end
 
 local function isHarmfulSpell(source)
     -- look for harmful effects in the source spell
+    local isHarmful = false
     for i = 1, 8 do
         local effect = source.effects[i]
         if effect and effect.object then
-            -- todo: get name of spell effect instead of id
-            log(common.logLevels.big, "effect #%s id:%s: harmful:%s", i, effect.object.id, effect.object.isHarmful)
-            if effect.object.isHarmful then return true end -- found one!
+            log(common.logLevels.big, "effect #%s %s is harmful:%s", i, spellEffects[effect.object.id + 1], effect.object.isHarmful)
+            if effect.object.isHarmful then isHarmful = true end -- found one!
         end
     end
-    return false -- found nothing
+    return isHarmful
 end
 -- }}}
 
@@ -162,6 +164,11 @@ local function onInitialized()
     for name, func in pairs(eventFunctions) do
         event.register(name:gsub("on(%u)", string.lower), func)
         log(common.logLevels.small, "%s event registered", name)
+    end
+
+    for effect, id in pairs(tes3.effect) do
+        -- I wish lua didn't start indexing at one, who does that ffs
+        spellEffects[id + 1] = effect
     end
 
     log(common.logLevels.no, "Successfully initialized%s", mag and " with More Attentive Guards interop" or "")
