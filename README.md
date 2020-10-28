@@ -17,6 +17,8 @@ As of version 1.4, there is an option to also stop any combat that would be star
 ## Known Issues ##
 Doesn't stop experience gain, just zeros out the damage that would have been done. I'm not really sure this one _can_ be fixed.
 
+Spells with any harmful effects will be resisted when friendly fire is detected, even if not all of the effects are harmful. I don't think there's a way around this, other than not making spells like that.
+
 ## Requirements ##
 MWSE 2.1 nightly @ [github](https://github.com/MWSE/MWSE)
 
